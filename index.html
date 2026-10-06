@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Notas EPN</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a3a6b 0%, #0d2149 60%, #081733 100%);
+    padding: 20px;
+  }
+
+  .card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 460px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #1a4fa0, #0f2f6b);
+    color: #fff;
+    padding: 24px 28px;
+    text-align: center;
+  }
+
+  .card-header h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .card-header p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-top: 6px;
+  }
+
+  .card-body {
+    padding: 28px;
+  }
+
+  .fields {
+    display: flex;
+    gap: 16px;
+  }
+
+  .field {
+    flex: 1;
+  }
+
+  label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1.1rem;
+    border: 2px solid #d4dae3;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"]:focus {
+    border-color: #1a4fa0;
+    box-shadow: 0 0 0 3px rgba(26, 79, 160, 0.18);
+  }
+
+  .hint {
+    font-size: 0.75rem;
+    color: #7a8494;
+    margin-top: 6px;
+  }
+
+  .field-error {
+    display: none;
+    font-size: 0.78rem;
+    color: #b3261e;
+    margin-top: 6px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  input.invalido {
+    border-color: #b3261e;
+    background: #fff7f6;
+  }
+
+  input.invalido:focus {
+    box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.15);
+  }
+
+  .btns {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #1a4fa0, #0f2f6b);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.12s, filter 0.2s;
+  }
+
+  .btn-secundario {
+    flex: 0 0 120px;
+    background: #eef1f6;
+    color: #3a4556;
+  }
+
+  .btn:hover {
+    filter: brightness(1.12);
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .result {
+    display: none;
+    margin-top: 22px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-top {
+    padding: 18px 20px;
+    color: #fff;
+    text-align: center;
+  }
+
+  .result-top .sum {
+    font-size: 0.9rem;
+    opacity: 0.92;
+  }
+
+  .result-top .sum strong {
+    font-size: 1.5rem;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .result-top .estado {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 20px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+  }
+
+  .result-bottom {
+    padding: 16px 20px;
+    background: #f5f7fa;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #333;
+    display: none;
+  }
+
+  .result-bottom strong {
+    font-size: 1.4rem;
+    display: block;
+    margin-top: 6px;
+    color: #8a6d00;
+  }
+
+  .result-bottom .detalle {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 8px;
+  }
+
+  .verde { background: #1e8e3e; border-color: #1e8e3e; }
+  .amarillo { background: #f2b705; border-color: #f2b705; }
+  .rojo { background: #d93025; border-color: #d93025; }
+
+  .footer-note {
+    margin-top: 18px;
+    font-size: 0.75rem;
+    color: #8a93a3;
+    text-align: center;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h1>Calculadora de Notas EPN</h1>
+    <p>Escuela Politécnica Nacional &mdash; Verifica si apruebas tu materia</p>
+  </div>
+
+  <div class="card-body">
+    <div class="fields">
+      <div class="field">
+        <label for="b1">I Bimestre</label>
+        <input type="number" id="b1" min="0" max="20" step="0.01" placeholder="0.00" inputmode="decimal">
+        <div class="field-error" id="err1"></div>
+        <div class="hint">Máximo 20 puntos</div>
+      </div>
+      <div class="field">
+        <label for="b2">II Bimestre</label>
+        <input type="number" id="b2" min="0" max="20" step="0.01" placeholder="0.00" inputmode="decimal">
+        <div class="field-error" id="err2"></div>
+        <div class="hint">Máximo 20 puntos</div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="btn" id="calcular">Calcular</button>
+      <button class="btn btn-secundario" id="limpiar">Limpiar</button>
+    </div>
+
+    <div class="result" id="resultado">
+      <div class="result-top" id="resultTop">
+        <div class="sum">
+          Suma de bimestres
+          <strong id="sumaTexto">0 / 40</strong>
+        </div>
+        <div class="estado" id="estadoTexto">—</div>
+      </div>
+      <div class="result-bottom" id="resultBottom">
+        <span id="labelSupletorio">Necesitas mínimo en el supletorio:</span>
+        <strong id="minSupletorio">0 / 40</strong>
+        <div class="detalle" id="detalleSupletorio"></div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Aprobado: suma &ge; 28 &nbsp;|&nbsp; Supletorio: 18 &le; suma &lt; 28 &nbsp;|&nbsp; Reprobado: suma &lt; 18
+    </div>
+  </div>
+</div>
+
+<script>
+  var b1 = document.getElementById('b1');
+  var b2 = document.getElementById('b2');
+  var err1 = document.getElementById('err1');
+  var err2 = document.getElementById('err2');
+  var btnCalcular = document.getElementById('calcular');
+  var btnLimpiar = document.getElementById('limpiar');
+  var resultado = document.getElementById('resultado');
+  var resultTop = document.getElementById('resultTop');
+  var resultBottom = document.getElementById('resultBottom');
+  var sumaTexto = document.getElementById('sumaTexto');
+  var estadoTexto = document.getElementById('estadoTexto');
+  var minSupletorio = document.getElementById('minSupletorio');
+  var labelSupletorio = document.getElementById('labelSupletorio');
+  var detalleSupletorio = document.getElementById('detalleSupletorio');
+
+  function redondear(n) {
+    return Math.round(n * 100) / 100;
+  }
+
+  function formatear(n) {
+    return n.toFixed(2);
+  }
+
+  function mostrarErrorCampo(input, errorEl, mensaje) {
+    input.classList.add('invalido');
+    errorEl.textContent = mensaje;
+    errorEl.style.display = 'block';
+  }
+
+  function limpiarErrorCampo(input, errorEl) {
+    input.classList.remove('invalido');
+    errorEl.textContent = '';
+    errorEl.style.display = 'none';
+  }
+
+  function validarCampo(input, errorEl) {
+    var texto = input.value.trim();
+
+    if (texto === '') {
+      if (input.validity && input.validity.badInput) {
+        mostrarErrorCampo(input, errorEl, 'Ingresa un número válido.');
+      } else {
+        mostrarErrorCampo(input, errorEl, 'Este campo es obligatorio.');
+      }
+      return null;
+    }
+
+    var valor = parseFloat(texto);
+
+    if (isNaN(valor)) {
+      mostrarErrorCampo(input, errorEl, 'Ingresa un número válido.');
+      return null;
+    }
+
+    if (valor < 0 || valor > 20) {
+      mostrarErrorCampo(input, errorEl, 'La nota debe estar entre 0 y 20.');
+      return null;
+    }
+
+    limpiarErrorCampo(input, errorEl);
+    return valor;
+  }
+
+  function calcular() {
+    var v1 = validarCampo(b1, err1);
+    var v2 = validarCampo(b2, err2);
+
+    if (v1 === null || v2 === null) {
+      resultado.style.display = 'none';
+      return;
+    }
+
+    var suma = redondear(v1 + v2);
+    var estado, clase, minNota = null;
+
+    if (suma >= 28) {
+      estado = 'APROBADO';
+      clase = 'verde';
+    } else if (suma >= 18) {
+      estado = 'SUPLETORIO';
+      clase = 'amarillo';
+      minNota = redondear(Math.max(24, 48 - suma));
+    } else {
+      estado = 'REPROBADO';
+      clase = 'rojo';
+    }
+
+    sumaTexto.textContent = formatear(suma) + ' / 40';
+    estadoTexto.textContent = estado;
+    resultTop.className = 'result-top ' + clase;
+
+    if (estado === 'SUPLETORIO') {
+      labelSupletorio.style.display = 'inline';
+      minSupletorio.style.display = 'block';
+      minSupletorio.textContent = formatear(minNota) + ' / 40';
+      detalleSupletorio.textContent = 'Nota final = (suma + supletorio) / 2 y debe ser >= 24.';
+      resultBottom.style.display = 'block';
+    } else if (estado === 'APROBADO') {
+      labelSupletorio.style.display = 'none';
+      minSupletorio.style.display = 'none';
+      detalleSupletorio.textContent = 'Suma mayor o igual a 28: apruebas directamente.';
+      resultBottom.style.display = 'block';
+    } else {
+      resultBottom.style.display = 'none';
+    }
+
+    resultado.style.display = 'block';
+  }
+
+  function limpiar() {
+    b1.value = '';
+    b2.value = '';
+    limpiarErrorCampo(b1, err1);
+    limpiarErrorCampo(b2, err2);
+    resultado.style.display = 'none';
+    b1.focus();
+  }
+
+  btnCalcular.addEventListener('click', calcular);
+  btnLimpiar.addEventListener('click', limpiar);
+
+  [b1, b2].forEach(function (input, i) {
+    var errorEl = i === 0 ? err1 : err2;
+
+    input.addEventListener('input', function () {
+      if (input.classList.contains('invalido')) {
+        limpiarErrorCampo(input, errorEl);
+      }
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') calcular();
+    });
+  });
+</script>
+
+</body>
+</html>
